@@ -58,5 +58,18 @@
   },
   "dependencies": {
     "remix-auth-oauth2": "^1.8.0"
-  }
+  },
+  "description": "The Patreon strategy is used to authenticate users against a Patreon account. It extends the OAuth2Strategy.",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/projectprintlab/remix-auth-patreon.git"
+  },
+  "author": "Project Print Lab",
+  "bugs": {
+    "url": "https://github.com/projectprintlab/remix-auth-patreon/issues"
+  },
+  "homepage": "https://github.com/projectprintlab/remix-auth-patreon#readme"
 }
