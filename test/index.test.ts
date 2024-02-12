@@ -1,9 +1,16 @@
 import { createCookieSessionStorage } from "@remix-run/node";
-import { MyStrategy } from "../src";
+import { AuthenticateOptions } from "remix-auth";
+import { PatreonStrategy } from "../src";
 
-describe(MyStrategy, () => {
+const BASE_OPTIONS: AuthenticateOptions = {
+  name: "form",
+  sessionKey: "user",
+  sessionErrorKey: "error",
+  sessionStrategyKey: "strategy",
+};
+
+describe(PatreonStrategy, () => {
   let verify = jest.fn();
-  // You will probably need a sessionStorage to test the strategy.
   let sessionStorage = createCookieSessionStorage({
     cookie: { secrets: ["s3cr3t"] },
   });
@@ -12,10 +19,111 @@ describe(MyStrategy, () => {
     jest.resetAllMocks();
   });
 
-  test("should have the name of the strategy", () => {
-    let strategy = new MyStrategy({ something: "You may need" }, verify);
-    expect(strategy.name).toBe("change-me");
+  test("should allow changing the scope", async () => {
+    let strategy = new PatreonStrategy(
+      {
+        clientID: "CLIENT_ID",
+        clientSecret: "CLIENT_SECRET",
+        callbackURL: "https://example.app/callback",
+        scope: "custom",
+      },
+      verify
+    );
+
+    let request = new Request("https://example.app/auth/patreon");
+
+    try {
+      await strategy.authenticate(request, sessionStorage, BASE_OPTIONS);
+    } catch (error) {
+      if (!(error instanceof Response)) throw error;
+      let location = error.headers.get("Location");
+
+      if (!location) throw new Error("No redirect header");
+
+      let redirectUrl = new URL(location);
+
+      expect(redirectUrl.searchParams.get("scope")).toBe("custom");
+    }
   });
 
-  test.todo("Write more tests to check everything works as expected");
+  test("should allow typed scope array", async () => {
+    let strategy = new PatreonStrategy(
+      {
+        clientID: "CLIENT_ID",
+        clientSecret: "CLIENT_SECRET",
+        callbackURL: "https://example.app/callback",
+        scope: ["identity"],
+      },
+      verify
+    );
+
+    let request = new Request("https://example.app/auth/patreon");
+
+    try {
+      await strategy.authenticate(request, sessionStorage, BASE_OPTIONS);
+    } catch (error) {
+      if (!(error instanceof Response)) throw error;
+      let location = error.headers.get("Location");
+
+      if (!location) throw new Error("No redirect header");
+
+      let redirectUrl = new URL(location);
+
+      expect(redirectUrl.searchParams.get("scope")).toBe("read:user");
+    }
+  });
+
+  test("should have the scope `user:email` as default", async () => {
+    let strategy = new PatreonStrategy(
+      {
+        clientID: "CLIENT_ID",
+        clientSecret: "CLIENT_SECRET",
+        callbackURL: "https://example.app/callback",
+      },
+      verify
+    );
+
+    let request = new Request("https://example.app/auth/patreon");
+
+    try {
+      await strategy.authenticate(request, sessionStorage, BASE_OPTIONS);
+    } catch (error) {
+      if (!(error instanceof Response)) throw error;
+      let location = error.headers.get("Location");
+
+      if (!location) throw new Error("No redirect header");
+
+      let redirectUrl = new URL(location);
+
+      expect(redirectUrl.searchParams.get("scope")).toBe("user:email");
+    }
+  });
+
+  test("should correctly format the authorization URL", async () => {
+    let strategy = new PatreonStrategy(
+      {
+        clientID: "CLIENT_ID",
+        clientSecret: "CLIENT_SECRET",
+        callbackURL: "https://example.app/callback",
+      },
+      verify
+    );
+
+    let request = new Request("https://example.app/auth/patreon");
+
+    try {
+      await strategy.authenticate(request, sessionStorage, BASE_OPTIONS);
+    } catch (error) {
+      if (!(error instanceof Response)) throw error;
+
+      let location = error.headers.get("Location");
+
+      if (!location) throw new Error("No redirect header");
+
+      let redirectUrl = new URL(location);
+
+      expect(redirectUrl.hostname).toBe("patreon.com");
+      expect(redirectUrl.pathname).toBe("/login/oauth/authorize");
+    }
+  });
 });
