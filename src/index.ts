@@ -33,23 +33,6 @@ export type PatreonScope =
 export interface PatreonIdentity extends OAuth2Profile {
   id: string;
   type: string;
-  relationships: {
-    campaign: {
-      data: {
-        id: string;
-        type: string;
-      };
-      links: {
-        related: string;
-      };
-    };
-    memberships: {
-      data: {
-        id: string;
-        type: string;
-      }[];
-    };
-  };
   attributes: {
     about: string;
     created: string;
@@ -86,6 +69,23 @@ export interface PatreonIdentity extends OAuth2Profile {
     thumb_url: string;
     url: string;
     vanity: string;
+  };
+  relationships: {
+    campaign: {
+      data: {
+        id: string;
+        type: string;
+      };
+      links: {
+        related: string;
+      };
+    };
+    memberships: {
+      data: {
+        id: string;
+        type: string;
+      }[];
+    };
   };
 }
 

@@ -69,11 +69,11 @@ describe(PatreonStrategy, () => {
 
       let redirectUrl = new URL(location);
 
-      expect(redirectUrl.searchParams.get("scope")).toBe("read:user");
+      expect(redirectUrl.searchParams.get("scope")).toBe("identity");
     }
   });
 
-  test("should have the scope `user:email` as default", async () => {
+  test("should have the scope `identity[email]` as default", async () => {
     let strategy = new PatreonStrategy(
       {
         clientID: "CLIENT_ID",
@@ -95,7 +95,7 @@ describe(PatreonStrategy, () => {
 
       let redirectUrl = new URL(location);
 
-      expect(redirectUrl.searchParams.get("scope")).toBe("user:email");
+      expect(redirectUrl.searchParams.get("scope")).toBe("identity[email]");
     }
   });
 
@@ -122,8 +122,8 @@ describe(PatreonStrategy, () => {
 
       let redirectUrl = new URL(location);
 
-      expect(redirectUrl.hostname).toBe("patreon.com");
-      expect(redirectUrl.pathname).toBe("/login/oauth/authorize");
+      expect(redirectUrl.hostname).toBe("www.patreon.com");
+      expect(redirectUrl.pathname).toBe("/oauth2/authorize");
     }
   });
 });
