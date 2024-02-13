@@ -46,7 +46,7 @@ export interface PatreonIdentity extends OAuth2Profile {
       facebook: string | null;
       google: string | null;
       instagram: {
-        scopes: ["user_profile"];
+        scopes: string[];
         url: string;
         user_id: string;
       } | null;
@@ -61,7 +61,7 @@ export interface PatreonIdentity extends OAuth2Profile {
       } | null;
       vimeo: string | null;
       youtube: {
-        scopes: ["https://www.googleapis.com/auth/youtube.readonly"];
+        scopes: string[];
         url: string;
         user_id: string;
       } | null;
@@ -97,7 +97,7 @@ export interface PatreonExtraParams
 }
 
 export const PatreonStrategyDefaultName = "patreon";
-export const PatreonStrategyDefaultScope: PatreonScope = "identity[email]";
+export const PatreonStrategyDefaultScope: PatreonScope = "identity";
 export const PatreonStrategyScopeSeparator = " ";
 
 export class PatreonStrategy<User> extends OAuth2Strategy<
@@ -163,13 +163,18 @@ export class PatreonStrategy<User> extends OAuth2Strategy<
       },
     });
 
-    // let data: PatreonIdentity["attributes"] = await response.json();
+    let data: PatreonIdentity = await response.json();
 
-    // let profile: PatreonIdentity = {};
+    let profile: PatreonIdentity = {
+      provider: "patreon",
+      displayName: data.attributes.full_name,
+      id: data.id,
+      type: data.type,
+      attributes: data.attributes,
+      relationships: data.relationships,
+    };
 
-    // return profile;
-
-    return await response.json();
+    return profile;
   }
 
   protected async getAccessToken(response: Response): Promise<{
@@ -177,7 +182,7 @@ export class PatreonStrategy<User> extends OAuth2Strategy<
     refreshToken: string;
     extraParams: PatreonExtraParams;
   }> {
-    let data = new URLSearchParams(await response.text());
+    let data = new URLSearchParams(await response.json());
 
     let accessToken = data.get("access_token");
     if (!accessToken) throw new AuthorizationError("Missing access token.");
