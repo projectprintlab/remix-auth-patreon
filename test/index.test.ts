@@ -73,7 +73,7 @@ describe(PatreonStrategy, () => {
     }
   });
 
-  test("should have the scope `identity[email]` as default", async () => {
+  test("should have the scope `identity` as default", async () => {
     let strategy = new PatreonStrategy(
       {
         clientID: "CLIENT_ID",
@@ -95,7 +95,7 @@ describe(PatreonStrategy, () => {
 
       let redirectUrl = new URL(location);
 
-      expect(redirectUrl.searchParams.get("scope")).toBe("identity[email]");
+      expect(redirectUrl.searchParams.get("scope")).toBe("identity");
     }
   });
 
